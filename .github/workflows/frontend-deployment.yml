@@ -23,7 +23,9 @@ jobs:
 
         steps: 
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
 
             - name: Setup The Node 
               uses: actions/setup-node@v2
@@ -31,7 +33,7 @@ jobs:
                 node-version: '21'
       #Implement Catching Stratergy
             - name: Cache node modules
-              uses: actions/cache@v2
+              uses: actions/cache@v3
               env:
                   cache-name: cache-node-modules
               with:
@@ -39,9 +41,8 @@ jobs:
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json')}}
     
             - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-              name: List the state of node modules
-              continue-on-error: true
-              run: npm list
+              name: Install the dependacies
+              run: npm install --legacy-peer-deps
             - name: Test The Application
               run: |
                 npm run test
@@ -57,7 +58,9 @@ jobs:
          packages: write
         steps: 
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
 
             - name: Build the Application
               run: npm run build
@@ -77,29 +80,36 @@ jobs:
                 tags: ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }}
                 push: true
 #  github.sha
-            - name: Copy the key-pair from secrets to the file
-              run: |
-                echo "${{ secrets.AWS_KEY_PAIR }}" > private_key.pem
-
-            - name: Change Permission for private-key file
-              run: |
-                chmod 400 "private_key.pem"
     deployment:
-        name: Deployment Analysis
-        runs-on: ubuntu-latest
-        timeout-minutes: 4
-        defaults:
-          run:
-            working-directory: frontend
-        steps:
-        - name: Deploy The Frontend Application
-          run:  |
-            ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}'
-            docker -v &&
-            docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
-            docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
-            docker stop bc-frontend-app || true &&
-            docker rm bc-frontend-app || true &&
-            docker run -d -p 3001:8080 --name bc-frontend-app ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }} 
-            '
+       name: Deployment Analysis
+       runs-on: ubuntu-latest
+       timeout-minutes: 4
+       defaults:
+         run:
+           working-directory: frontend
+       permissions:
+         contents: write
+         packages: write
+  
+       steps:
+          - name: Copy the key-pair from secrets to the file
+            run: |
+              echo "${{ secrets.AWS_KEY_PAIR }}" > private_key.pem
+
+          - name: Change Permission for private-key file
+            run: |
+              chmod 400 "private_key.pem"
+
+          - name: Deploy The Frontend Application
+            run:  |
+              ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}'
+              docker -v &&
+              docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
+              docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
+              docker stop bc-frontend-app || true &&
+              docker rm bc-frontend-app || true &&
+              docker run -d -p 3000:80 --name bc-frontend-app ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }} 
+              '
+
+
               

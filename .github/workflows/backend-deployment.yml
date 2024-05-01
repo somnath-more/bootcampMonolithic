@@ -45,6 +45,7 @@ jobs:
         defaults:
             run:
                 working-directory:  ./backend
+    
         steps:
           - name: Login To GHCR Registry
             uses: docker/login-action@v2
