@@ -94,6 +94,10 @@ jobs:
          packages: write
   
        steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+            with:
+              fetch-depth: 0
           - name: Copy the key-pair from secrets to the file
             run: |
               echo "${{ secrets.AWS_KEY_PAIR }}" > private_key.pem
