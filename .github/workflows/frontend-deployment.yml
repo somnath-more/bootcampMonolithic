@@ -82,7 +82,7 @@ jobs:
 #  github.sha
     deployment:
        name: Deployment Analysis
-       needs: build
+       needs: dockerimage
        runs-on: ubuntu-latest
        timeout-minutes: 4
        defaults:
