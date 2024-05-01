@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("http://localhost:80")
+@CrossOrigin("*")
 @RequestMapping("/v1/skills")
 public class SkillController {
 
