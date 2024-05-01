@@ -51,7 +51,6 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v3
           - name: Login To GHCR Registry
-           
             uses: docker/login-action@v2
             with:
              registry: ghcr.io
@@ -61,6 +60,7 @@ jobs:
           - name: Build and push Docker image to GHCR
             uses: docker/build-push-action@v3
             with:
+             context: backend/
              push: true
              tags: ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
         
