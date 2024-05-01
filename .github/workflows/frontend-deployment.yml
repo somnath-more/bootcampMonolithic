@@ -48,6 +48,7 @@ jobs:
                 npm run test
     build:
         name: Build Analysis
+        needs: test
         runs-on: ubuntu-latest
         timeout-minutes: 4
         defaults:
@@ -82,6 +83,7 @@ jobs:
 #  github.sha
     deployment:
        name: Deployment Analysis
+       needs: build
        runs-on: ubuntu-latest
        timeout-minutes: 4
        defaults:
