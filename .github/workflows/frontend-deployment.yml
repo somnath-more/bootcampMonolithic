@@ -114,7 +114,7 @@ jobs:
               docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
               docker stop bc-frontend-app || true &&
               docker rm bc-frontend-app || true &&
-              docker run -d -p 3000:80 --name bc-frontend-app ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }} 
+              docker run -d -p 80:80 --name bc-frontend-app ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }} 
               '
 
 
