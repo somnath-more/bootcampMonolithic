@@ -101,6 +101,7 @@ const CommuteRouteOptions = (props: CommuteRouteProps) => {
                     color: theme.palette.grey[700],
                     fontWeight: 500,
                   }}
+                  data-testid="jobcard-role"
                 >
                   {props.jobCard.role}
                 </Typography>
@@ -175,7 +176,7 @@ const CommuteRouteOptions = (props: CommuteRouteProps) => {
               display="inline-flex"
               columnGap="4px"
             >
-              {props.jobCard.commute.map((route: any) => {
+              {props.jobCard.commute && props.jobCard.commute.map((route: any) => {
                 switch (route.commute.routeOption) {
                   case 'train':
                     return (
@@ -197,6 +198,7 @@ const CommuteRouteOptions = (props: CommuteRouteProps) => {
                           onClick={(event: any) => {
                             setActive('FirstCard');
                           }}
+                          data-testId="TrainOutlined"
                         />
                       </IconButton>
                     );
@@ -260,6 +262,7 @@ const CommuteRouteOptions = (props: CommuteRouteProps) => {
                               color: EXTRA_COLORS.white,
                             },
                           }}
+                          data-testid="PedalBike"
                         />
                       </IconButton>
                     );
@@ -312,6 +315,7 @@ const CommuteRouteOptions = (props: CommuteRouteProps) => {
                         color: theme.palette.grey[500],
                         marginTop: '10px',
                       }}
+                      data-testid="DirectionsBus"
                     />
                     <Typography
                       variant="caption"
@@ -394,6 +398,7 @@ const CommuteRouteOptions = (props: CommuteRouteProps) => {
                         color: theme.palette.grey[500],
                         marginTop: '10px',
                       }}
+                      data-testid="TrainOutlined"
                     />
                     <Typography
                       variant="caption"
