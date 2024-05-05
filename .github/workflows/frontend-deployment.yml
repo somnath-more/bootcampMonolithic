@@ -105,16 +105,18 @@ jobs:
           - name: Change Permission for private-key file
             run: |
               chmod 400 "private_key.pem"
-
+          - name: Send Compose File to Server
+            run: |
+              scp docker-compose.yml ubunut@51.20.96.64:/home/ubuntu/
+   
           - name: Deploy The Frontend Application
             run:  |
               ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@ec2-16-16-168-134.eu-north-1.compute.amazonaws.com '
               docker -v &&
               docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
               docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
-              docker stop bc-frontend-app || true &&
-              docker rm bc-frontend-app || true &&
-              docker run -d -p 80:80 --name bc-frontend-app ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }} 
+              docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}}  bc-frontend
+              docker-compose up
               '
 
 

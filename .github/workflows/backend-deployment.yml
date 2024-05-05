@@ -39,7 +39,7 @@ jobs:
             - name: Build with Maven 
               run: mvn clean package -DskipTests
     
-    deploy:
+    docker-image:
         runs-on: ubuntu-latest
         timeout-minutes: 4
         needs: build
@@ -63,7 +63,11 @@ jobs:
              context: backend/
              push: true
              tags: ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
-        
+    deployment:
+        runs-on: ubuntu-latest
+        timeout-minutes: 4
+        needs: docker-image       
+        steps:     
           - name: Copy the key-pair from secrets to the file
             run: |
                 echo "${{ secrets.AWS_KEY_PAIR }}" >  bc-private-key.pem
@@ -77,10 +81,7 @@ jobs:
                 ssh -o StrictHostKeyChecking=no -i bc-private-key.pem ${{ secrets.SSH_USERNAME }}@ec2-16-16-168-134.eu-north-1.compute.amazonaws.com '
                 docker -v &&
                 docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
-                docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }} &&
-                docker stop monolithic-bc-be-app || true &&
-                docker rm monolithic-bc-be-app || true &&
-                docker run -d -p 8000:8000 --name monolithic-bc-be-app ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }} 
+                docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
                 '
                 rm bc-private-key.pem
                     
