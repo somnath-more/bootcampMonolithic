@@ -6,7 +6,7 @@ export default axios.create({
 
 export const getAqi = async (city: any) => {
   return axios.get(
-    `https://api.waqi.info/feed/${city}?token=265f537e4985d6eb1113d115a5582a0ccc90960c`,
+    `https://api.waqi.info/feed/Mumbai/?token=265f537e4985d6eb1113d115a5582a0ccc90960c`,
   );
 };
 
