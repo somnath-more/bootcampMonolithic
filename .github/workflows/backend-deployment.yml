@@ -78,10 +78,11 @@ jobs:
 
           - name: Pull The Image from GHCR and Run Container on Ec2 Instance
             run: |
-                ssh -o StrictHostKeyChecking=no -i bc-private-key.pem ${{ secrets.SSH_USERNAME }}@ec2-51-20-96-64.eu-north-1.compute.amazonaws.com '
+                ssh -o StrictHostKeyChecking=no -i bc-private-key.pem ${{ secrets.SSH_USERNAME }}@ec2-51-20-68-205.eu-north-1.compute.amazonaws.com '
                 docker -v &&
                 docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
                 docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
+                docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number}}  bc-backend
                 '
                 rm bc-private-key.pem
                     
