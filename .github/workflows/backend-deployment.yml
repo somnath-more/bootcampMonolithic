@@ -1,0 +1,90 @@
+name: Backend CICD Workflow Analysis
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - '.github/workflows/backend-deployment.yml'
+            - 'backend/**'
+    pull_request:
+         types: ["opened","reopened","synchronize"]
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        timeout-minutes: 4
+        defaults:
+            run:
+                working-directory:  ./backend
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+         
+            - name: SetUp Jdk Environment
+              uses: actions/setup-java@v3
+              with:
+                java-version: '11'
+                distribution: 'adopt'
+                cache: maven
+    
+            - name: Cache Maven packages
+              uses: actions/cache@v3
+              with:
+                path: ~/.m2
+                key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+                restore-keys: ${{ runner.os }}-m2
+          
+            - name: Build with Maven 
+              run: mvn clean package -DskipTests
+    
+    docker-image:
+        runs-on: ubuntu-latest
+        timeout-minutes: 4
+        needs: build
+        defaults:
+            run:
+                working-directory:  backend
+    
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+          - name: Login To GHCR Registry
+            uses: docker/login-action@v2
+            with:
+             registry: ghcr.io
+             username: ${{ github.actor }}
+             password: ${{ secrets.GITHUB_TOKEN }}
+
+          - name: Build and push Docker image to GHCR
+            uses: docker/build-push-action@v3
+            with:
+             context: backend/
+             push: true
+             tags: |
+              ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
+              ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:latest
+
+    deployment:
+        runs-on: ubuntu-latest
+        timeout-minutes: 4
+        needs: docker-image       
+        steps:     
+          - name: Copy the key-pair from secrets to the file
+            run: |
+                echo "${{ secrets.AWS_KEY_PAIR }}" >  bc-private-key.pem
+          - name : Read Permissions to private key file
+            run: |
+                chmod 400  bc-private-key.pem
+                ls -l  bc-private-key.pem
+
+          - name: Pull The Image from GHCR and Run Container on Ec2 Instance
+            run: |
+                ssh -o StrictHostKeyChecking=no -i bc-private-key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.IP_ADDRESS}} '
+                docker -v &&
+                docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
+                docker compose up --no-deps -d backend  
+                '
+                rm bc-private-key.pem
+             

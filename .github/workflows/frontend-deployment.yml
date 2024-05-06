@@ -1,0 +1,124 @@
+name: Frontend CI-CD Deployment Using EC2
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'frontend/**'
+            - '.github/workflows/frontend-deployment.yml'
+    pull_request:
+       types: ["opened","synchronize","reopened"]
+       
+jobs:
+    build:
+        name: Build and Test Analysis
+        runs-on: ubuntu-latest
+        timeout-minutes: 4
+        defaults:
+          run:
+            working-directory: frontend
+        permissions:
+            contents: write
+            packages: write
+
+        steps: 
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
+
+            - name: Setup The Node 
+              uses: actions/setup-node@v2
+              with:
+                node-version: '21'
+      #Implement Catching Stratergy
+            - name: Cache node modules
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  path: ${{ github.workspace }}/frontend/node_modules 
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json')}}
+    
+            - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+              name: Install the dependacies
+              run: npm install --legacy-peer-deps
+            - name: Test The Application
+              run: |
+                npm run test
+            - name: Build the Application
+              run: npm run build
+    dockerimage:
+        name: Docker Image Analysis
+        needs: build
+        runs-on: ubuntu-latest
+        timeout-minutes: 4
+        defaults:
+          run:
+           working-directory: frontend
+        permissions:
+         contents: write
+         packages: write
+        steps: 
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
+# make seprate job
+            - name: Login to GHCR Repository
+              uses: docker/login-action@v2
+              with:
+                 registry: ghcr.io
+                 username: ${{ github.actor }}
+                 password: ${{ secrets.GITHUB_TOKEN }}
+                 
+            - name: Check my Repo name
+              run: echo ${{ github.event.repository.name }}
+            - name: Build and push Docker image
+              uses: docker/build-push-action@v3
+              with:
+                context: frontend/
+                tags: | 
+                   ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }}
+                   ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:latest
+                push: true
+#  github.sha
+    deployment:
+       name: Deployment Analysis
+       needs: dockerimage
+       runs-on: ubuntu-latest
+       timeout-minutes: 4
+       defaults:
+         run:
+           working-directory: frontend
+       permissions:
+         contents: write
+         packages: write
+  
+       steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+            with:
+              fetch-depth: 0
+          - name: Copy the key-pair from secrets to the file
+            run: |
+              echo "${{ secrets.AWS_KEY_PAIR }}" > private_key.pem
+
+          - name: Change Permission for private-key file
+            run: |
+              chmod 400 "private_key.pem"
+              ls -l private_key.pem
+          # - name: Send Compose File to Server but problem is runner running on  frontend server
+          #   run: |
+          #     scp docker-compose.yml ubuntu@51.20.68.205:/home/ubuntu/
+   
+          - name: Deploy The Frontend Application
+            run:  |
+              ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.IP_ADDRESS}} '
+              docker -v &&
+              docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
+              docker compose up --no-deps -d frontend
+              '
+
+
+              

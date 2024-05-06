@@ -1,0 +1,27 @@
+version: '3'
+services:
+  backend:
+     image: ghcr.io/somnath-more/bootcampmonolithic:latest
+     ports:
+       - "8000:8000"
+     environment:
+      MYSQL_HOST: db-service
+      MYSQL_USER: gc
+      MYSQL_PASSWORD: Gc@12345
+     networks:
+      - compose-network
+
+  frontend:
+     image: bc-frontend
+     ports:
+       - "8004:80"
+     depends_on:
+        - backend
+     networks:
+      - compose-network
+
+networks:
+  compose-network:
+   driver: bridge
+
+   
