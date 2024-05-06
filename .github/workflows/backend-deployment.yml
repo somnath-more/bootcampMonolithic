@@ -62,7 +62,9 @@ jobs:
             with:
              context: backend/
              push: true
-             tags: ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
+             tags: |
+              ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
+              ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:latest
     deployment:
         runs-on: ubuntu-latest
         timeout-minutes: 4
@@ -81,10 +83,10 @@ jobs:
                 ssh -o StrictHostKeyChecking=no -i bc-private-key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.IP_ADDRESS}} '
                 docker -v &&
                 docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
-                docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
-                docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number}}  bc-backend
+                docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:latest
+               
 
                 docker compose up --no-deps -d backend  
                 '
                 rm bc-private-key.pem
-                    
+                    #export name
