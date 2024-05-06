@@ -78,7 +78,9 @@ jobs:
               uses: docker/build-push-action@v3
               with:
                 context: frontend/
-                tags: ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }}
+                tags: | 
+                   ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha }}
+                   ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:latest
                 push: true
 #  github.sha
     deployment:
@@ -106,7 +108,7 @@ jobs:
             run: |
               chmod 400 "private_key.pem"
               ls -l private_key.pem
-          # - name: Send Compose File to Server
+          # - name: Send Compose File to Server but problem is runner running on  frontend server
           #   run: |
           #     scp docker-compose.yml ubuntu@51.20.68.205:/home/ubuntu/
    
@@ -115,8 +117,6 @@ jobs:
               ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.IP_ADDRESS}} '
               docker -v &&
               docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
-              docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
-              docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}}  bc-frontend
               docker compose up --no-deps -d frontend
               '
 
