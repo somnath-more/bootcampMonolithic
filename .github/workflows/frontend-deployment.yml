@@ -108,7 +108,7 @@ jobs:
               ls -l private_key.pem
           # - name: Send Compose File to Server
           #   run: |
-          #     scp docker-compose.yml ubuntu@51.20.68.205:/home/ubuntu/Bootcamp
+          #     scp docker-compose.yml ubuntu@51.20.68.205:/home/ubuntu/
    
           - name: Deploy The Frontend Application
             run:  |

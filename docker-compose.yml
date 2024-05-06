@@ -20,10 +20,6 @@ services:
      networks:
       - compose-network
 
-
-
-volumes:
-  db-data:
 networks:
   compose-network:
    driver: bridge
