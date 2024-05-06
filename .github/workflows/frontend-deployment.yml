@@ -105,14 +105,14 @@ jobs:
           - name: Change Permission for private-key file
             run: |
               chmod 400 "private_key.pem"
-              ls -l private-key.pem
+              ls -l private_key.pem
           # - name: Send Compose File to Server
           #   run: |
           #     scp docker-compose.yml ubuntu@51.20.68.205:/home/ubuntu/Bootcamp
    
           - name: Deploy The Frontend Application
             run:  |
-              ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@ec2-51-20-96-64.eu-north-1.compute.amazonaws.com '
+              ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.SSH_USERNAME }}@ec2-43-204-101-233.ap-south-1.compute.amazonaws.com '
               docker -v &&
               docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
               docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
