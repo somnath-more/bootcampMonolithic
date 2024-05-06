@@ -1,20 +1,5 @@
 version: '3'
 services:
-  db-service:
-    image: mysql:8.0
-    ports:
-      - "3303:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_USER: gc
-      MYSQL_PASSWORD: Gc@12345
-      MYSQL_DATABASE: bc_25_gc
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-     - compose-network
-
-
   backend:
      image: bc-backend
      ports:

@@ -83,6 +83,8 @@ jobs:
                 docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
                 docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
                 docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number}}  bc-backend
+
+                docker compose up --no-deps -d frontend
                 '
                 rm bc-private-key.pem
                     
