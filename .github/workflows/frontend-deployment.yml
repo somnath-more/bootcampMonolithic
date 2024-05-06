@@ -117,7 +117,7 @@ jobs:
               docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
               docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
               docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}}  bc-frontend
-              docker compose up --no-deps -d bootcampmonolithic_frontend
+              docker compose up --no-deps -d frontend
               '
 
 
