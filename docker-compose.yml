@@ -4,10 +4,10 @@ services:
      image: bc-backend
      ports:
        - "8000:8000"
-    #  environment:
-    #   MYSQL_HOST: db-service
-    #   MYSQL_USER: gc
-    #   MYSQL_PASSWORD: Gc@12345
+     environment:
+      MYSQL_HOST: 43.204.101.233
+      MYSQL_USER: gc
+      MYSQL_PASSWORD: Gc@12345
      networks:
       - compose-network
 
