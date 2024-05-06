@@ -105,6 +105,7 @@ jobs:
           - name: Change Permission for private-key file
             run: |
               chmod 400 "private_key.pem"
+              ls -l private-key.pem
           # - name: Send Compose File to Server
           #   run: |
           #     scp docker-compose.yml ubuntu@51.20.68.205:/home/ubuntu/Bootcamp
@@ -116,7 +117,7 @@ jobs:
               docker login --username "${{ github.actor }}" --password "${{ secrets.GHCR_PAT }}" ghcr.io &&
               docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}} &&
               docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-frontend-${{ github.sha}}  bc-frontend
-              docker compose up --no-deps -d backend
+              docker compose up --no-deps -d frontend
               '
 
 

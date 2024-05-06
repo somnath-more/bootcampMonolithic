@@ -84,7 +84,7 @@ jobs:
                 docker pull ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number }}
                 docker tag ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}:bc-backend-${{ github.run_number}}  bc-backend
 
-                docker compose up --no-deps -d frontend
+                docker compose up --no-deps -d backend
                 '
                 rm bc-private-key.pem
                     
