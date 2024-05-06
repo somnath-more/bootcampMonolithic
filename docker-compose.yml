@@ -8,8 +8,6 @@ services:
       MYSQL_HOST: db-service
       MYSQL_USER: gc
       MYSQL_PASSWORD: Gc@12345
-     depends_on:
-       - db-service
      networks:
       - compose-network
 
@@ -19,7 +17,6 @@ services:
        - "8004:80"
      depends_on:
         - backend
-        - db-service
      networks:
       - compose-network
 
